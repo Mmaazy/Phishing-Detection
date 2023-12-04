@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Malicious URL Detection</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+    <style>
+        html,
+        body {
+            height: 100%;
+            font-family: 'metropolis-bold', sans-serif;
+        }
+
+        .btn:active {
+            box-shadow: none;
+        }
+
+        .one {
+            content: '✔' !important;
+            color: #fff !important;
+            background-color: #34d1b8 !important;
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 auto !important;
+            top: 0 !important;
+        }
+
+        .container {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .green {
+            color: green;
+            text-decoration: underline
+        }
+
+        .red {
+            color: red;
+            text-decoration: underline
+        }
+
+        .icon-red {
+            color: red;
+        }
+
+        .icon-green {
+            color: green;
+        }
+
+        .text-red {
+            color: red;
+        }
+
+        .black {
+            color: #fff;
+            background-color: #000;
+            border-radius: 20px;
+        }
+
+        .black:hover {
+            color: #ffffff;
+            background-color: #535353;
+        }
+
+        .heading {
+            font-family: 'metropolis-bold', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 3rem;
+            text-transform: uppercase;
+        }
+
+        .inner-heading {
+            font-family: 'metropolis-bold', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 6rem;
+        }
+
+        .urlInput,
+        .urlInput1 {
+            width: 50%;
+            margin: auto;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+            line-height: 2rem;
+        }
+
+        .pull-right {
+            margin-bottom: 4rem;
+        }
+
+        @import "compass";
+
+        .panel {
+            border: none;
+        }
+
+        .stepper .nav-tabs {
+            position: relative;
+            border-bottom: none;
+        }
+
+        .stepper .nav-tabs>li {
+            width: 33.333%;
+            position: relative;
+        }
+
+        .stepper .nav-tabs>li:after {
+            content: '';
+            position: absolute;
+            background: #bcbcbc;
+            display: block;
+            width: 100%;
+            height: 7px;
+            top: 29px;
+            left: 50%;
+            z-index: 1;
+        }
+
+        .stepper .nav-tabs>li.completed::after {
+            background: #34d1b8;
+        }
+
+        .stepper .nav-tabs>li:last-child::after {
+            background: transparent;
+        }
+
+        .stepper .nav-tabs>li.active:last-child .round-tab {
+            background: #34d1b8;
+        }
+
+        .stepper .nav-tabs>li.active:last-child .round-tab::after {
+            content: '✔';
+            color: #fff;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            top: 0;
+            display: block;
+        }
+
+        .stepper .nav-tabs [data-toggle='tab'] {
+            width: 25px;
+            height: 25px;
+            margin: 20px auto;
+            border-radius: 100%;
+            border: none;
+            padding: 0;
+            color: #f1f1f1;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+            gap: 20px;
+        }
+
+        .stepper .nav-tabs [data-toggle='tab']:hover {
+            background: transparent;
+            border: none;
+        }
+
+        .stepper .nav-tabs>.active>[data-toggle='tab'],
+        .stepper .nav-tabs>.active>[data-toggle='tab']:hover,
+        .stepper .nav-tabs>.active>[data-toggle='tab']:focus {
+            color: #34d1b8;
+            cursor: default;
+            border: none;
+        }
+
+        .stepper .tab-pane {
+            position: relative;
+            margin-top: 3rem;
+            text-align: center;
+            justify-content: center;
+            /* display: flex; */
+            flex-direction: column;
+        }
+
+        .stepper .tab-pane .result-tab {
+            color: #fff;
+            border-radius: 0.5rem;
+            padding: 30px;
+        }
+
+        .stepper .tab-pane .result-tab i {
+            color: #fff;
+        }
+
+        .stepper .tab-pane .result-tab .badge {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .stepper .tab-pane .result-tab.red {
+            background-color: red;
+        }
+
+        .stepper .tab-pane .result-tab.green {
+            background-color: green;
+        }
+
+        .stepper .tab-pane .result-tab table td {
+            text-decoration: none;
+        }
+
+        .stepper .round-tab {
+            width: 25px;
+            height: 25px;
+            line-height: 22px;
+            display: inline-block;
+            border-radius: 25px;
+            background: #fff;
+            border: 2px solid #34d1b8;
+            color: #34d1b8;
+            z-index: 2;
+            position: absolute;
+            left: 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .stepper .completed .round-tab {
+            background: #34d1b8;
+        }
+
+        .stepper .completed .round-tab::after {
+            content: '✔';
+            color: #fff;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            top: 0;
+            display: block;
+        }
+
+        .stepper .active .round-tab {
+            background: #fff;
+            border: 2px solid #34d1b8;
+        }
+
+        .stepper .active .round-tab:hover {
+            color: #fff !important;
+            background-color: #34d1b8 !important;
+            border: 2px solid #34d1b8;
+        }
+
+        .stepper .active .round-tab::after {
+            display: none;
+        }
+
+        .stepper .disabled .round-tab {
+            background: #fff;
+            color: #bcbcbc;
+            border-color: #bcbcbc;
+        }
+
+        .stepper .disabled .round-tab:hover {
+            color: #fff !important;
+            background-color: #34d1b8 !important;
+            border: 2px solid #34d1b8;
+        }
+
+        .stepper .disabled .round-tab::after {
+            display: none;
+        }
+
+        .stepper .step {
+            margin-top: 30px;
+            min-width: max-content;
+            color: #000;
+            font-weight: 600;
+            text-transform: uppercase
+        }
+
+        .tab-content>.active {
+            display: flex;
+        }
+
+        img {
+            height: 200px;
+        }
+
+        table {
+            text-align: center;
+        }
+
+        table td {
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .badge.red {
+            background-color: red;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .badge.green {
+            background-color: green;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .icons-wrapper {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        #speechIcon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <div class="wrapper">
+                <p class="heading">CHECK WEBSITE IS&nbsp;</p>
+                <p class="heading green">REAL</p>
+                <p class="heading">&nbsp;OR&nbsp;</p>
+                <p class="heading red">FAKE</p>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="stepper">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="completed">
+                                <a class="persistant-disabled" href="#stepper-step-1" data-toggle="tab"
+                                    style="pointer-events: none;" aria-controls="stepper-step-1" role="tab" title=""
+                                    data-original-title="Step 1">
+                                    <span class="round-tab one">✔</span>
+                                    <span class="step">Step 1</span>
+                                </a>
+                            </li>
+                            <li role="presentation" class="active">
+                                <a class="persistant-disabled" href="#stepper-step-2" data-toggle="tab"
+                                    style="pointer-events: none;" aria-controls="stepper-step-2" role="tab" title=""
+                                    data-original-title="Step 2">
+                                    <span class="round-tab one">✔</span>
+                                    <span class="step">Step 2</span>
+                                </a>
+                            </li>
+                            <li role="presentation" class="disabled">
+                                <a class="persistant-disabled" href="#stepper-step-3" data-toggle="tab"
+                                    style="pointer-events: none;" aria-controls="stepper-step-3" role="tab" title=""
+                                    data-original-title="Step 3">
+                                    <span class="round-tab">3</span>
+                                    <span class="step">Step 3</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <form role="form" action="\">
+                            <div class="tab-content">
+
+                                <div class="tab-pane fade in active" role="tabpanel" id="stepper-step-2">
+                                    <div class="wrapper">
+                                        <p class="heading">The Site Is&nbsp;</p>
+                                        {% if binderList == "Fake": %}
+                                        <p class="heading red">{{binderList}}</p>
+                                        {% else %}
+                                        <p class="heading green">{{binderList}}</p>
+                                        {% endif %}
+                                        <span id="speechIcon">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </span>
+                                    </div>
+                                    <h3 class="inner-heading" style="
+                                        font-size: 20px;
+                                        line-height: 20px;
+                                    ">Click the correct symbol to proceed</h3>
+                                    <ul class="list-inline pull-right icons-wrapper">
+                                        <li>
+                                            <a href="#stepper-step-3" data-toggle="tab" role="tab" class="btn next-step"
+                                                data-result="Fake">
+                                                <i class="fa-solid fa-circle-xmark fa-8x icon-red"></i>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#stepper-step-3" ata-toggle="tab" role="tab" class="btn next-step"
+                                                data-result="Real">
+                                                <i class="fa-solid fa-circle-check fa-8x icon-green"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-pane fade" role="tabpanel" id="stepper-step-3">
+                                    {% if binderList == "Fake": %}
+                                    <div class="result-tab red">
+                                        {% else %}
+                                        <div class="result-tab green">
+                                            {% endif %}
+                                            <h3 class="inner-heading">RESULT</h3>
+                                            {% if binderList == "Fake": %}
+                                            <p><i class="fa-solid fa-circle-xmark fa-8x icon-red"></i></p>
+                                            {% else %}
+                                            <p><i class="fa-solid fa-circle-check fa-8x icon-green"></i></p>
+                                            {% endif %}
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>WEBSITE</th>
+                                                        <th>RESULT</th>
+                                                        <th>UNDERSTANDING</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="websiteResult">{{url}}</td>
+                                                        <td>
+                                                            {% if binderList == "Fake": %}
+                                                            <span class="badge red">{{binderList}}</span>
+                                                            {% else %}
+                                                            <span class="badge green">{{binderList}}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="understanding">-</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <ul class="list-inline">
+                                                <li>
+                                                    <a href="/" class="btn btn-primary next-step black">Proceed</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function ($) {
+            "use strict";
+
+            $(function () {
+                $(document).ready(function () {
+
+                    let speech = new SpeechSynthesisUtterance();
+                    var binderList = ' This website is {{ binderList }} . red cross indicates fake website and green indicates the real websites';
+                    document.getElementById("speechIcon").addEventListener("click", () => {
+                        speech.text = binderList;
+                        speech.rate = 3;
+                        window.speechSynthesis.speak(speech);
+                    })
+
+                    var blinderList_result = '{{ binderList }}';
+
+                    function triggerClick(elem) {
+                        $(elem).click();
+                    }
+                    var $progressWizard = $(".stepper"),
+                        $tab_active,
+                        $tab_prev,
+                        $tab_next,
+                        $btn_prev = $progressWizard.find(".prev-step"),
+                        $btn_next = $progressWizard.find(".next-step"),
+                        $tab_toggle = $progressWizard.find('[data-toggle="tab"]'),
+                        $tooltips = $progressWizard.find('[data-toggle="tab"][title]');
+
+                    $tooltips.tooltip();
+
+                    $tab_toggle.on("show.bs.tab", function (e) {
+                        var $target = $(e.target);
+
+                        if (!$target.parent().hasClass("active, disabled")) {
+                            $target.parent().prev().addClass("completed");
+                            $target.find(".round-tab").text("✔");
+                        }
+                        if ($target.parent().hasClass("disabled")) {
+                            return false;
+                        }
+                    });
+
+                    $btn_next.on("click", function () {
+                        $tab_active = $progressWizard.find(".active");
+                        var data_result = $(this).data('result');
+                        console.log(data_result, 'data_result');
+                        console.log(blinderList_result, 'blinderList_result');
+                        if (data_result == blinderList_result) {
+                            $("#understanding").html('100%');
+                        } else {
+                            $("#understanding").html('0%');
+                        }
+
+                        $tab_active.next().removeClass("disabled");
+
+                        $tab_next = $tab_active.next().find('a[data-toggle="tab"]');
+                        triggerClick($tab_next);
+                    });
+                    $btn_prev.click(function () {
+                        $tab_active = $progressWizard.find(".active");
+                        $tab_prev = $tab_active.prev().find('a[data-toggle="tab"]');
+                        triggerClick($tab_prev);
+                    });
+                });
+            });
+        })(jQuery, this);
+    </script>
+</body>
+
+</html>
